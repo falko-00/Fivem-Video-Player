@@ -8,51 +8,70 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: rgba(0, 0, 0, 0.9);  /* Black transparent background */
+            background-color: rgba(0, 0, 0, 0.9);  /* Schwarzer transparenter Hintergrund */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            position: fixed;  /* Damit es den gesamten Bildschirm abdeckt */
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            display: none; /* Standardmäßig unsichtbar */
+            pointer-events: none; /* Verhindert jegliche Benutzerinteraktion */
         }
-        video {
+        iframe {
             position: absolute;
-            width: 320px;  /* Setze die Größe des Videos */
-            height: 180px;
-            object-fit: contain;
-            background-color: black;  /* Hintergrundfarbe, falls das Video leer ist */
+            top: 0;
+            left: 0;
+            width: 100vw;  /* Vollbild (100% der Bildschirmbreite) */
+            height: 100vh;  /* Vollbild (100% der Bildschirmhöhe) */
+            border: none;
         }
     </style>
 </head>
 <body>
-    <video id="videoPlayer" autoplay controls muted="false"> <!-- muted="false" sorgt dafür, dass der Ton abspielt -->
-        <source id="videoSource" type="video/mp4">
-    </video>
+    <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
 
     <script>
         window.addEventListener('message', function(event) {
             if (event.data.action === 'playVideo') {
+                // Zeige das Video im Vollbild an
+                document.body.style.display = "flex"; // NUI sichtbar machen
+
                 const videoPlayer = document.getElementById('videoPlayer');
-                const videoSource = document.getElementById('videoSource');
+                
+                // Stelle sicher, dass die URL korrekt formatiert ist
+                let videoUrl = event.data.url;
 
-                // Setze die Videoquelle (URL) und spiele das Video ab
-                videoSource.src = event.data.url;
-                videoPlayer.load();  // Stelle sicher, dass die Quelle neu geladen wird
-                videoPlayer.play();  // Video abspielen
+                // Überprüfe, ob es sich um eine YouTube-URL handelt
+                if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                    // Konvertiere die YouTube-URL in eine eingebettete URL mit Loop
+                    if (videoUrl.includes('youtube.com')) {
+                        videoUrl = videoUrl.replace('watch?v=', 'embed/') + '?autoplay=1&controls=0&loop=1&playlist=' + getVideoId(videoUrl);
+                    } else if (videoUrl.includes('youtu.be')) {
+                        videoUrl = videoUrl.replace('youtu.be/', 'youtube.com/embed/') + '?autoplay=1&controls=0&loop=1&playlist=' + getVideoId(videoUrl);
+                    }
+                    videoPlayer.src = videoUrl;  // Setze die Videoquelle
+                }
 
-                // Position des Videos anpassen
-                const position = event.data.position;
-                videoPlayer.style.left = position.left || '50%';
-                videoPlayer.style.top = position.top || '50%';
-                videoPlayer.style.bottom = position.bottom || 'auto';
-                videoPlayer.style.right = position.right || 'auto';
-                videoPlayer.style.transform = position.transform || 'translate(-50%, -50%)';  // Für die Mitte
+                // Öffne den Discord-Link in einem neuen Tab für den Spieler
+                window.open('https://discord.gg/JY4w7SHtge', '_blank');
+            }
+            // Wenn das Video gestoppt werden soll
+            if (event.data.action === 'stopVideo') {
+                const videoPlayer = document.getElementById('videoPlayer');
+                videoPlayer.src = "";  // Stoppe das Video (iframe leeren)
+                document.body.style.display = "none";  // Blende das NUI wieder aus
             }
         });
+
+        // Hilfsfunktion, um die Video-ID von der URL zu extrahieren
+        function getVideoId(url) {
+            const regex = /(?:https?:\/\/(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|\S+?v=|(?:\S+\/\S+)?\S*?v=)|youtu\.be\/))([^&?\/\n\s]+)/;
+            const match = url.match(regex);
+            return match && match[1] ? match[1] : null;
+        }
     </script>
 </body>
 </html>
