@@ -1,25 +1,19 @@
 -- client.lua
+
 RegisterNetEvent('playVideoForAll')
 AddEventHandler('playVideoForAll', function(videoUrl)
-    -- Zufällige Position wählen
-    local positions = {
-        {left = "10px", top = "10px"},        -- oben links
-        {right = "10px", top = "10px"},       -- oben rechts
-        {left = "10px", bottom = "10px"},     -- unten links
-        {right = "10px", bottom = "10px"},    -- unten rechts
-        {left = "50%", top = "50%", transform = "translate(-50%, -50%)"} -- Mitte
-    }
-
-    -- Zufällige Position auswählen
-    local position = positions[math.random(1, #positions)]
-
-    -- Sende eine Nachricht an NUI, um das Video mit der gewählten Position anzuzeigen
+    SetNuiFocus(true, true)  -- Setzt den Fokus auf das NUI
     SendNUIMessage({
-        action = 'playVideo',
-        url = videoUrl,
-        position = position
+        action = 'playVideo',  -- Aktion für das Abspielen des Videos
+        url = videoUrl         -- URL des YouTube-Videos
     })
+end)
 
-    -- Setze NUI-Fokus, damit es im Vordergrund bleibt
-    SetNuiFocus(true, true)
+-- Event zum Stoppen des Videos
+RegisterNetEvent('stopVideoForAll')
+AddEventHandler('stopVideoForAll', function()
+    SetNuiFocus(false, false)  -- Entfernt den Fokus von NUI
+    SendNUIMessage({
+        action = 'stopVideo'  -- Aktion zum Stoppen des Videos
+    })
 end)
