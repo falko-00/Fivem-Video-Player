@@ -16,4 +16,4 @@ This is a basic FiveM video player that allows you to play YouTube videos direct
    You can clone the repository using Git or simply download the files as a ZIP and extract them.
 
    ```bash
-   git clone https://github.com/your-username/Fivem-Video-Player.git
+   git clone https://github.com/falko-00/Fivem-Video-Player.git
